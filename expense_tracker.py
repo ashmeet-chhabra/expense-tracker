@@ -26,8 +26,9 @@ def add_expense(expenses, description, amount):
         'id': get_next_id(expenses),
         'description': description,
         'amount': amount,
-        'timestamp': datetime.date()
+        'date': datetime.date(datetime.now())
     }
+    
     expenses.append(expense)
     save_expenses(expenses)
 
@@ -46,16 +47,33 @@ def delete_expense(expenses, id):
             save_expenses(expenses)
             break
 
+def list_expenses(expenses):
+    for expense in expenses:
+        id, description, amount, date = expense.values()
+        print(id, description, amount, date)
+
+def summarize(expenses, month=None):
+    if month:
+        filtered_total = 0
+        for expense in expenses:
+            if expense['date'].month == month:
+                filtered_total += expense['amount']
+        print(f'Total expenses for month {month}: ${filtered_total}')
+    else:
+        total_expense = sum(expense['amount'] for expense in expenses)
+        print(f'Total expenses: ${total_expense}')
+
 
 def main():
-    expenses = load_expenses(FILE_NAME)
+    # expenses = load_expenses(FILE_NAME)
 
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest='command')
+    subparsers = parser.add_subparsers()
 
     sp_add = subparsers.add_parser('add')
     sp_add.add_argument('--description')
     sp_add.add_argument('--amount', type=int)
+    sp_add.set_defaults(func=add_expense)
 
     sp_update = subparsers.add_parser('update')
     sp_update.add_argument('--id', type=int)
@@ -71,11 +89,6 @@ def main():
     args = parser.parse_args()
 
     print(args.description, args.amount)
-
-    #json 
-
-    file = json.load('data.json')
-    
 
 if __name__ == '__main__':
     main()
