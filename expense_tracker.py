@@ -19,8 +19,28 @@ def get_next_id(expenses):
     next_id = max(expense['id'] for expense in expenses) + 1
     return next_id
 
-# core features
+# argparse handlers
+def handle_add(args):
+    expenses = load_expenses(FILE_NAME)
+    add_expense(expenses, args.description, args.amount)
 
+def handle_update(args):
+    expenses = load_expenses(FILE_NAME)
+    update_expense(expenses, args.id, args.description, args.amount)
+
+def handle_delete(args):
+    expenses = load_expenses(FILE_NAME)
+    delete_expense(expenses, args.id)
+    
+def handle_list(args):
+    expenses = load_expenses(FILE_NAME)
+    list_expenses(expenses)
+
+def handle_summary(args):
+    expenses = load_expenses(FILE_NAME)
+    summarize_expenses(expenses, args.month)
+
+# core features
 def add_expense(expenses, description, amount):
     expense = {
         'id': get_next_id(expenses),
@@ -52,7 +72,7 @@ def list_expenses(expenses):
         id, description, amount, date = expense.values()
         print(id, description, amount, date)
 
-def summarize(expenses, month=None):
+def summarize_expenses(expenses, month=None):
     if month:
         filtered_total = 0
         for expense in expenses:
@@ -63,32 +83,39 @@ def summarize(expenses, month=None):
         total_expense = sum(expense['amount'] for expense in expenses)
         print(f'Total expenses: ${total_expense}')
 
-
 def main():
-    # expenses = load_expenses(FILE_NAME)
-
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     sp_add = subparsers.add_parser('add')
     sp_add.add_argument('--description')
     sp_add.add_argument('--amount', type=int)
-    sp_add.set_defaults(func=add_expense)
+    sp_add.set_defaults(func=handle_add)
 
     sp_update = subparsers.add_parser('update')
     sp_update.add_argument('--id', type=int)
+    sp_update.set_defaults(func=handle_update)
 
     sp_delete = subparsers.add_parser('delete')
     sp_delete.add_argument('--id', type=int)
+    sp_delete.set_defaults(func=handle_delete)
 
     sp_list = subparsers.add_parser('list')
+    sp_list.set_defaults(func=handle_list)
 
     sp_summary = subparsers.add_parser('summary')   
     sp_summary.add_argument('--month', type=int)
+    sp_summary.set_defaults(func=handle_summary)
 
     args = parser.parse_args()
-
-    print(args.description, args.amount)
+    # print(args.description, args.amount)
+    # print(args.id)
+    # print(args.month)
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
