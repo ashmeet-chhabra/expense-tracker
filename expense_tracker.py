@@ -48,9 +48,10 @@ def delete_expense(expenses, id):
             break
 
 def list_expenses(expenses):
+    print(f"{'ID':<5} {'Description':<12} {'Amount':<7} {'Date':<10}")
     for expense in expenses:
         id, description, amount, date = expense.values()
-        print(id, description, amount, date)
+        print('{:<5} {:<12} {:<7} {:<10}'.format(id, description, amount, date))
 
 def summarize_expenses(expenses, month=None):
     if month:
