@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 import argparse
 from datetime import datetime, date
 
@@ -7,9 +8,15 @@ FILE_NAME = 'data.json'
 
 # utility
 def load_expenses():
+    if not os.path.exists(FILE_NAME):
+        return []
+
     with open(FILE_NAME, 'r') as f:
-        expenses = json.load(f)
-        return expenses
+        try:
+            expenses = json.load(f)
+            return expenses
+        except json.JSONDecodeError:
+            return []
 
 def save_expenses(expenses):
     with open(FILE_NAME, 'w') as f:
@@ -53,7 +60,7 @@ def list_expenses(expenses):
         id, description, amount, date = expense.values()
         print('{:<5} {:<12} {:<7} {:<10}'.format(id, description, amount, date))
 
-def summarize_expenses(expenses, month=None):
+def summarize_expenses(expenses, month):
     if month:
         filtered_total = 0
         for expense in expenses:
@@ -96,6 +103,8 @@ def main():
 
     sp_update = subparsers.add_parser('update')
     sp_update.add_argument('--id', type=int)
+    sp_update.add_argument('--description')
+    sp_update.add_argument('--amount', type=int)
     sp_update.set_defaults(func=handle_update)
 
     sp_delete = subparsers.add_parser('delete')
@@ -115,7 +124,5 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-
-
+#todo - feedback messages
 
