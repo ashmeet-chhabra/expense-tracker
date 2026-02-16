@@ -28,11 +28,14 @@ def get_next_id(expenses):
     next_id = max(expense['id'] for expense in expenses) + 1
     return next_id
 
-# core features
-def add_expense(expenses, description, amount):
+def validate_amount(amount):
     if amount < 0:
         print('Negative amount. Try Again')
-        return
+        sys.exit(1)
+
+# core features
+def add_expense(expenses, description, amount):
+    validate_amount(amount)
     id = get_next_id(expenses)
     expense = {
         'id': id,
@@ -45,6 +48,7 @@ def add_expense(expenses, description, amount):
     print(f'Expense added successfully (ID: {id})')
 
 def update_expense(expenses, id, description, amount):
+    validate_amount(amount)
     for expense in expenses:
         if expense['id'] == id:
             expense['description'] = description
@@ -70,11 +74,11 @@ def list_expenses(expenses):
         max_col = max(len('Description'), max([len(expense['description']) for expense in expenses])) + 2
         print(f"{'ID':<5} {'Description':<{max_col}} {'Amount':<7} {'Date':<10}")
         for expense in expenses:
-            id, description, amount, date = expense.values()
+            id, description, amount, date = expense['id'], expense['description'], expense['amount'], expense['date']
             print(f'{id:<5} {description:<{max_col}} {amount:<7} {date:<10}')
 
 def summarize_expenses(expenses, month):
-    if month:
+    if month is not None:
         if month < 1 or month > 12:
             print('Invalid month input')
             return
@@ -113,18 +117,18 @@ def main():
     subparsers = parser.add_subparsers()
 
     sp_add = subparsers.add_parser('add')
-    sp_add.add_argument('--description')
-    sp_add.add_argument('--amount', type=int)
+    sp_add.add_argument('--description', required=True)
+    sp_add.add_argument('--amount', type=int, required=True)
     sp_add.set_defaults(func=handle_add)
 
     sp_update = subparsers.add_parser('update')
-    sp_update.add_argument('--id', type=int)
-    sp_update.add_argument('--description')
-    sp_update.add_argument('--amount', type=int)
+    sp_update.add_argument('--id', type=int, required=True)
+    sp_update.add_argument('--description', required=True)
+    sp_update.add_argument('--amount', type=int, required=True)
     sp_update.set_defaults(func=handle_update)
 
     sp_delete = subparsers.add_parser('delete')
-    sp_delete.add_argument('--id', type=int)
+    sp_delete.add_argument('--id', type=int, required=True)
     sp_delete.set_defaults(func=handle_delete)
 
     sp_list = subparsers.add_parser('list')
@@ -135,6 +139,9 @@ def main():
     sp_summary.set_defaults(func=handle_summary)
 
     args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        parser.print_help()
+        return
     args.func(args)
 
 if __name__ == '__main__':
