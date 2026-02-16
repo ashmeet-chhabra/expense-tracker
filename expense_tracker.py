@@ -42,7 +42,7 @@ def add_expense(expenses, description, amount):
     }
     expenses.append(expense)
     save_expenses(expenses)
-    print(f'Expense (ID: {id}) added successfully')
+    print(f'Expense added successfully (ID: {id})')
 
 def update_expense(expenses, id, description, amount):
     for expense in expenses:
@@ -67,16 +67,17 @@ def list_expenses(expenses):
     if(len(expenses) == 0):
         print('No expenses in the data yet')
     else:
-        print(f"{'ID':<5} {'Description':<12} {'Amount':<7} {'Date':<10}")
+        max_col = max(len('Description'), max([len(expense['description']) for expense in expenses])) + 2
+        print(f"{'ID':<5} {'Description':<{max_col}} {'Amount':<7} {'Date':<10}")
         for expense in expenses:
             id, description, amount, date = expense.values()
-            print('{:<5} {:<12} {:<7} {:<10}'.format(id, description, amount, date))
+            print(f'{id:<5} {description:<{max_col}} {amount:<7} {date:<10}')
 
 def summarize_expenses(expenses, month):
-    if month < 1 or month > 12:
-        print('Invalid month input')
-        return
     if month:
+        if month < 1 or month > 12:
+            print('Invalid month input')
+            return
         filtered_total = 0
         for expense in expenses:
             if date.fromisoformat(expense['date']).month == month:
@@ -138,6 +139,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#todo - feedback messages
-
