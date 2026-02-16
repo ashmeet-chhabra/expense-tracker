@@ -30,14 +30,19 @@ def get_next_id(expenses):
 
 # core features
 def add_expense(expenses, description, amount):
+    if amount < 0:
+        print('Negative amount. Try Again')
+        return
+    id = get_next_id(expenses)
     expense = {
-        'id': get_next_id(expenses),
+        'id': id,
         'description': description,
         'amount': amount,
         'date': str(datetime.now().date())
     }
     expenses.append(expense)
     save_expenses(expenses)
+    print(f'Expense (ID: {id}) added successfully')
 
 def update_expense(expenses, id, description, amount):
     for expense in expenses:
@@ -45,22 +50,32 @@ def update_expense(expenses, id, description, amount):
             expense['description'] = description
             expense['amount'] = amount
             save_expenses(expenses)
-            break
-
+            print('Expense updated successully')
+            return
+    print('No matching ID found')
+    
 def delete_expense(expenses, id):
     for expense in expenses:
         if expense['id'] == id:
             expenses.remove(expense)
             save_expenses(expenses)
-            break
+            print('Expense deleted successfully')
+            return
+    print('No matching ID found')
 
 def list_expenses(expenses):
-    print(f"{'ID':<5} {'Description':<12} {'Amount':<7} {'Date':<10}")
-    for expense in expenses:
-        id, description, amount, date = expense.values()
-        print('{:<5} {:<12} {:<7} {:<10}'.format(id, description, amount, date))
+    if(len(expenses) == 0):
+        print('No expenses in the data yet')
+    else:
+        print(f"{'ID':<5} {'Description':<12} {'Amount':<7} {'Date':<10}")
+        for expense in expenses:
+            id, description, amount, date = expense.values()
+            print('{:<5} {:<12} {:<7} {:<10}'.format(id, description, amount, date))
 
 def summarize_expenses(expenses, month):
+    if month < 1 or month > 12:
+        print('Invalid month input')
+        return
     if month:
         filtered_total = 0
         for expense in expenses:
